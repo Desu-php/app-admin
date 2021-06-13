@@ -77,6 +77,7 @@ class Wazzup
             }elseif ($response->status() == 405) {
                 return ['success' => false, 'errors' => $response->object()->error->message, 'status' => $response->status()];
             }
+            dd($response->object());
             return ['success' => false, 'errors' => !empty($response->object())?$response->object()->errors:'Что-то пошло не так', 'status' => $response->status()];
         }
 
