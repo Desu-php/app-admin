@@ -354,7 +354,13 @@ class WhatsappController extends Controller
         Log::info('HOOK - ' . json_encode($request->all()));
         Log::info('ACCOUNT ID - ' . $id);
 
-        Log::info('FIRST ' . json_encode($request->messages));
+        if ($request->has('statuses')) {
+            Message::where('messageId', $request->statuses[0]['messageId'])
+                ->update([
+                    'status' => $request->statuses[0]['status']
+                ]);
+            return true;
+        }
 
 
         if (empty($request->messages)) {
@@ -363,16 +369,15 @@ class WhatsappController extends Controller
 
         $messages = $request->messages;
 
-        return false;
+
         $whatsapp = Whatsapp::find($id);
 
         if (is_null($whatsapp)) {
             return false;
         }
-        return false;
 
         $messages['user_id'] = $whatsapp->user_id;
 
-        Message::create($messages);
+        return Message::create($messages);
     }
 }
