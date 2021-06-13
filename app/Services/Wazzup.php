@@ -75,7 +75,7 @@ class Wazzup
             if ($response->status() == 404) {
                 return ['success' => false, 'errors' => 'Chat not found', 'status' => $response->status()];
             }
-            return ['success' => false, 'errors' => $response->object()->errors, 'status' => $response->status()];
+            return ['success' => false, 'errors' => !empty($response->object())?$response->object()->errors:'Что-то пошло не так', 'status' => $response->status()];
         }
 
         return ['success' => true, 'data' => $response->object()];
