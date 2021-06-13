@@ -5,6 +5,7 @@ namespace App\Services;
 
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class Wazzup
 {
@@ -64,6 +65,7 @@ class Wazzup
 
     public function setWebhook($id)
     {
+        Log::info('HOOK-INFO - '.route('webhook', $id));
         return $this->result($this->send('webhooks', 'PUT', [
             'url' => route('webhook', $id)
         ]));
