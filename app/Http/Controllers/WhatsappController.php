@@ -370,6 +370,7 @@ class WhatsappController extends Controller
         if (is_null($whatsapp)) {
             return false;
         }
+        return false;
 
         $messages['user_id'] = $whatsapp->user_id;
 
