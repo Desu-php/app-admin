@@ -82,7 +82,9 @@ class Wazzup
             }elseif ($response->status() == 419) {
                 return ['success' => false, 'errors' => $response->object()->error->message, 'status' => $response->status()];
             }
-            return ['success' => false, 'errors' => !empty($response->object())?$response->object()->errors:'Что-то пошло не так', 'status' => $response->status()];
+            Log::info(json_encode($response->object()));
+            return  ['success' => false, 'message' => 'Ошибка'];
+//            return ['success' => false, 'errors' => !empty($response->object())?$response->object()->errors:'Что-то пошло не так', 'status' => $response->status()];
         }
 
         return ['success' => true, 'data' => $response->object()];
