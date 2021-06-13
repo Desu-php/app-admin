@@ -15,6 +15,7 @@
     </div>
     <div class="nav-wrapper">
         <ul class="nav flex-column">
+            @role('SuperAdmin')
             <li class="nav-item">
                 <a class="nav-link {{(request()->is('users') || request()->is('users/*'))?'active':''}}"
                    href="{{route('users.index')}}">
@@ -22,6 +23,7 @@
                     <span>Пользователи админки</span>
                 </a>
             </li>
+            @endrole
             <li class="nav-item">
                 <a class="nav-link {{(request()->is('whatsapp') || request()->is('whatsapp/*'))?'active':''}}"
                    href="{{route('whatsapp.index')}}">
@@ -29,34 +31,34 @@
                     <span>Аккаунты wazzup</span>
                 </a>
             </li>
-            <li class="sidebar-dropdown nav-item">
-                <a href="#" class="nav-link link-icon
-                    {{(request()->is('advertisings') || request()->is('advertisings/*'))
-                        || (request()->is('stats') || request()->is('stats/*'))?'active':''
+{{--            <li class="sidebar-dropdown nav-item">--}}
+{{--                <a href="#" class="nav-link link-icon--}}
+{{--                    {{(request()->is('advertisings') || request()->is('advertisings/*'))--}}
+{{--                        || (request()->is('stats') || request()->is('stats/*'))?'active':''--}}
 
-                    }}"
-                >
-                    <i class="fas fa-bullseye"></i>
-                    <span>Отслеживаемые каналы</span>
-                </a>
-                <div class="sidebar-submenu d-none {{(request()->is('advertisings') || request()->is('advertisings/*'))
-                    || (request()->is('stats') || request()->is('stats/*')) ?'d-block':''}}">
-                    <ul>
-                        <li class="nav-item"><a
-                                class="nav-link {{(request()->is('advertisings') || request()->is('advertisings/*'))?'active':''}}"
-                                >Реклама </a></li>
-                        <li class="sidebar-dropdown  nav-item">
-                            <a class="nav-link link-icon {{(request()->is('stats') || request()->is('stats/*'))?'active':''}}"
-                               >Статистика
-                            </a>
-                            <div class="sidebar-submenu d-none {{(request()->is('advertisings') || request()->is('advertisings/*'))
-                                || (request()->is('stats') || request()->is('stats/*')) ?'d-block':''}}">
+{{--                    }}"--}}
+{{--                >--}}
+{{--                    <i class="fas fa-bullseye"></i>--}}
+{{--                    <span>Отслеживаемые каналы</span>--}}
+{{--                </a>--}}
+{{--                <div class="sidebar-submenu d-none {{(request()->is('advertisings') || request()->is('advertisings/*'))--}}
+{{--                    || (request()->is('stats') || request()->is('stats/*')) ?'d-block':''}}">--}}
+{{--                    <ul>--}}
+{{--                        <li class="nav-item"><a--}}
+{{--                                class="nav-link {{(request()->is('advertisings') || request()->is('advertisings/*'))?'active':''}}"--}}
+{{--                                >Реклама </a></li>--}}
+{{--                        <li class="sidebar-dropdown  nav-item">--}}
+{{--                            <a class="nav-link link-icon {{(request()->is('stats') || request()->is('stats/*'))?'active':''}}"--}}
+{{--                               >Статистика--}}
+{{--                            </a>--}}
+{{--                            <div class="sidebar-submenu d-none {{(request()->is('advertisings') || request()->is('advertisings/*'))--}}
+{{--                                || (request()->is('stats') || request()->is('stats/*')) ?'d-block':''}}">--}}
 
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </li>
+{{--                            </div>--}}
+{{--                        </li>--}}
+{{--                    </ul>--}}
+{{--                </div>--}}
+{{--            </li>--}}
 {{--            <li class="nav-item">--}}
 {{--                <a class="nav-link {{(request()->is('channels') || request()->is('channels/*'))?'active':''}}"--}}
 {{--                   href="{{route('channels.create')}}">--}}

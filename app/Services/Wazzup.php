@@ -8,18 +8,25 @@ use Illuminate\Support\Facades\Http;
 
 class Wazzup
 {
-    const BASE_API = 'http://api.wazzup24.com/v2/';
+    private const BASE_API = 'http://api.wazzup24.com/v2/';
+    private $api_key = '';
 
-    private function send($api_key, $api, $method = 'GET', $params = [])
+    public function __construct($api_key)
     {
-        return Http::withHeaders([
-            'Authorization' => 'Basic ' . $api_key
-        ])->send($method, self::BASE_API . $api, $params);
+        $this->api_key = $api_key;
     }
 
-    public  function updateOrCreate($api_key, $id, $username)
+    private function send($api, $method = 'GET', $params = [])
     {
-        return self::result($this->send($api_key, 'users', 'patch', [
+        $method = mb_strtolower($method);
+        return Http::withHeaders([
+            'Authorization' => 'Basic ' . $this->api_key
+        ])->$method(self::BASE_API . $api, $params);
+    }
+
+    public function updateOrCreate($id, $username)
+    {
+        return $this->result($this->send('users', 'patch', [
             [
                 'id' => $id,
                 'name' => $username
@@ -27,9 +34,9 @@ class Wazzup
         ]));
     }
 
-    public  function sendMessage($api_key, $channelId, $chatId, $text)
+    public function sendMessage($channelId, $chatId, $text)
     {
-        return self::result($this->send($api_key, 'send_message', 'post', [
+        return $this->result($this->send('send_message', 'post', [
             'channelId' => $channelId,
             'chatId' => $chatId,
             'text' => $text,
@@ -38,14 +45,14 @@ class Wazzup
 
     }
 
-    public static function getChannels($api_key)
+    public function getChannels()
     {
-        return self::result(self::instance($api_key, 'channels'));
+        return $this->result($this->send('channels'));
     }
 
-    public static function openChat($api_key, $wazzup_id, $username, $scope = 'global', $filter = [])
+    public function openChat($wazzup_id, $username, $scope = 'global', $filter = [])
     {
-        return self::result(self::instance($api_key, 'iframe', 'post', [
+        return $this->result($this->send('iframe', 'post', [
             'user' => [
                 'id' => $wazzup_id,
                 'name' => $username
@@ -55,16 +62,16 @@ class Wazzup
         ]));
     }
 
-    public static function setWebhook($api_key, $id)
+    public function setWebhook($id)
     {
-        return self::result(self::instance($api_key, 'webhooks', 'post', [
+        return $this->result($this->send('webhooks', 'PUT', [
             'url' => route('webhook', $id)
         ]));
     }
 
-    private static function result($response)
+    private function result($response)
     {
-        if ($response->status() > 400) {
+        if ($response->status() >= 400) {
             if ($response->status() == 404) {
                 return ['success' => false, 'errors' => 'Chat not found', 'status' => $response->status()];
             }

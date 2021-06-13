@@ -28,7 +28,7 @@ Route::group(['prefix' => '/', 'middleware' => ['auth']], function () {
     Route::get('/gotowhatsap', 'WhatsappController@openChat')->name('openChat');
 });
 
-Route::get('/whatsapp/webhook/{id}', 'WhatsappController@openChat')->name('webhook');
+Route::get('/whatsapp/webhook/{id}', 'WhatsappController@webhook')->name('webhook');
 
 
 Auth::routes(['registration' => false]);

@@ -46,6 +46,6 @@ class User extends Authenticatable
 
     public function whatsapp()
     {
-        return $this->hasMany(Whatsapp::class);
+        return $this->hasOne(Whatsapp::class);
     }
 }

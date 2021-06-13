@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -87,13 +88,13 @@ class WhatsappController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Wazzup $wazzup)
     {
         //
         $validator = Validator::make($request->all(), [
             'user_id' => 'nullable|exists:users,id',
             'username' => 'required|string|max:255',
-            'wazzup_id' => 'required|string|max:255',
+            'wazzup_id' => 'nullable|string|max:255',
             'api_key' => 'required|string|max:255',
             'status' => 'nullable|boolean',
         ]);
@@ -124,17 +125,21 @@ class WhatsappController extends Controller
             $data['user_id'] = Auth::id();
         }
 
-        $wazzup = Wazzup::updateOrCreate($request->api_key, $request->wazzup_id, $request->username);
+        $whatsapp = Whatsapp::create($data);
 
-        if (!$wazzup['success']) {
+        $result = $wazzup->updateOrCreate($whatsapp->id, $request->username);
+
+        if (!$result['success']) {
             return response()->json([
                 'success' => false,
-                'message' => $wazzup['errors'][0]
+                'message' => $result['errors'][0]
 
             ], 500);
         }
 
-        Whatsapp::create($data);
+
+       $result = $wazzup->setWebhook($whatsapp->id);
+        dd($result);
 
         return Response()->json([
             'success' => true,
@@ -148,7 +153,7 @@ class WhatsappController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function openChat(Request $request)
+    public function openChat(Request $request, Wazzup $wazzup)
     {
         //
         $account = Whatsapp::where('status', Whatsapp::ENABLED)
@@ -164,7 +169,7 @@ class WhatsappController extends Controller
         if ($request->has('number')) {
 
             if (!empty($request->text)) {
-                $message = Wazzup::sendMessage($account->api_key, $account->channelId, $request->number, $request->text);
+                $message = $wazzup->sendMessage($account->channelId, $request->number, $request->text);
                 if (!$message['success']) {
                     return response()->json($message, $message['status']);
                 }
@@ -181,7 +186,7 @@ class WhatsappController extends Controller
             ];
         }
 
-        $data = Wazzup::openChat($account->api_key, $account->wazzup_id, $account->username, $scope, $filter);
+        $data = $wazzup->openChat($account->wazzup_id, $account->username, $scope, $filter);
 
         if (!$data['success']) {
             return response()->json($data, $data['status']);
@@ -196,7 +201,7 @@ class WhatsappController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id, Wazzup $wazzup)
     {
         //
         $user = Whatsapp::where('id', $id);
@@ -216,7 +221,7 @@ class WhatsappController extends Controller
             abort(404);
         }
 
-        $channels = Wazzup::getChannels($data->api_key);
+        $channels = $wazzup->getChannels();
 
         if (!$channels['success']) {
             return response()->json($channels, $channels['status']);
@@ -233,13 +238,13 @@ class WhatsappController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Wazzup $wazzup, $id)
     {
         //
         $validator = Validator::make($request->all(), [
             'user_id' => 'nullable|exists:users,id',
-            'username' => 'required|string:255',
-            'wazzup_id' => 'required|string:255',
+            'username' => 'required|string|max:255',
+            'wazzup_id' => 'nullable|string|max:255',
             'api_key' => 'required|string|max:255',
             'status' => 'nullable|boolean',
             'channelId' => 'required|string'
@@ -258,16 +263,6 @@ class WhatsappController extends Controller
             $data['status'] = 0;
         }
 
-        $wazzup = Wazzup::updateOrCreate($request->api_key, $request->wazzup_id, $request->username);
-
-        if (!$wazzup['success']) {
-            return response()->json([
-                'success' => false,
-                'errors' => $wazzup['errors']
-
-            ], 500);
-        }
-
         $account = Whatsapp::where('id', $id);
 
         if (Auth::user()->hasRole(User::CLIENT)) {
@@ -275,6 +270,17 @@ class WhatsappController extends Controller
         }
 
         $account->update($data);
+
+        $result = $wazzup->updateOrCreate($id, $request->username);
+
+        if (!$result['success']) {
+            return response()->json([
+                'success' => false,
+                'errors' => $result['errors']
+
+            ], 500);
+        }
+
 
         return Response()->json([
             'success' => true,
@@ -300,13 +306,13 @@ class WhatsappController extends Controller
         return Response()->json($account->delete());
     }
 
-    public function channelCreate(Whatsapp $whatsapp)
+    public function channelCreate(Whatsapp $whatsapp, Wazzup $wazzup)
     {
         if (is_null($whatsapp) || $whatsapp->user_id != Auth::id()) {
             abort(404);
         }
 
-        $data = Wazzup::getChannels($whatsapp->api_key);
+        $data = $wazzup->getChannels();
 
         if (!$data['success']) {
             return response()->json($data, $data['status']);
@@ -340,5 +346,10 @@ class WhatsappController extends Controller
             'success' => true,
             'message' => 'Вы успешно привязали канал к аккаунту'
         ]);
+    }
+
+    public function webhook(Request $request)
+    {
+        Log::info('HOOK - ' . json_encode($request->all()));
     }
 }

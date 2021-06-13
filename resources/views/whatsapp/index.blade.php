@@ -33,7 +33,7 @@
                             <th scope="col" class="border-0">Клиент</th>
                             @endrole
                             <th scope="col" class="border-0">Имя пользователя</th>
-                            <th scope="col" class="border-0">Id пользователя в crm-системе</th>
+{{--                            <th scope="col" class="border-0">Id пользователя в crm-системе</th>--}}
                             <th scope="col" class="border-0">Статус</th>
                             @role('Client')
                             <th scope="col" class="border-0">Api key</th>
@@ -60,7 +60,7 @@
             {data: "user.email", name: 'user.email'},
         @endrole
             {data: "username", name: 'username'},
-            {data: "wazzup_id", name: 'wazzup_id'},
+            // {data: "wazzup_id", name: 'wazzup_id'},
             {data: "status", name: 'status'},
             @role('Client')
             {data: "api_key", name: 'api_key'},
