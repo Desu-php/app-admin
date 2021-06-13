@@ -65,7 +65,7 @@ class Wazzup
 
     public function setWebhook($id)
     {
-        Log::info('HOOK-INFO - '.route('webhook', $id));
+        Log::info('HOOK-INFO - ' . route('webhook', $id));
         return $this->result($this->send('webhooks', 'PUT', [
             'url' => route('webhook', $id)
         ]));
@@ -74,17 +74,14 @@ class Wazzup
     private function result($response)
     {
         if ($response->status() >= 400) {
-            Log::info('[ERROR - HOOK] '.json_encode($response->object()));
+            Log::info('[ERROR - HOOK] ' . json_encode($response->object()));
             if ($response->status() == 404) {
                 return ['success' => false, 'errors' => 'Chat not found', 'status' => $response->status()];
-            }elseif ($response->status() == 405) {
-                return ['success' => false, 'errors' => $response->object()->error->message, 'status' => $response->status()];
-            }elseif ($response->status() == 419) {
-                return ['success' => false, 'errors' => $response->object()->error->message, 'status' => $response->status()];
+            }elseif ($response->status() == 400) {
+                return ['success' => false, 'errors' => $response->object()->errors, 'status' => $response->status()];
             }
-            Log::info(json_encode($response->object()));
-            return  ['success' => false, 'message' => 'Ошибка'];
-//            return ['success' => false, 'errors' => !empty($response->object())?$response->object()->errors:'Что-то пошло не так', 'status' => $response->status()];
+
+            return ['success' => false, 'errors' => $response->object()->error->message, 'status' => $response->status()];
         }
 
         return ['success' => true, 'data' => $response->object()];

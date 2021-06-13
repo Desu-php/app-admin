@@ -357,16 +357,15 @@ class WhatsappController extends Controller
         Log::info('HOOK - ' . json_encode($request->all()));
         Log::info('ACCOUNT ID - ' . $id);
 
-        if ($request->has('statuses')) {
-            Message::where('messageId', $request->statuses[0]['messageId'])
-                ->update([
-                    'status' => $request->statuses[0]['status']
-                ]);
-            return true;
-        }
+//        if ($request->has('statuses')) {
+//            Message::where('messageId', $request->statuses[0]['messageId'])
+//                ->update([
+//                    'status' => $request->statuses[0]['status']
+//                ]);
+//            return true;
+//        }
 
-
-        if (empty($request->messages)) {
+        if (empty($request->messages) || !is_array($request->messages) || empty($request->messages[0]['messageId'])) {
             return false;
         }
 
