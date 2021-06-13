@@ -350,6 +350,7 @@ class WhatsappController extends Controller
 
     public function webhook(Request $request)
     {
+        return response()->json(true);
         Log::info('HOOK - ');
 
     }
