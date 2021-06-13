@@ -17,7 +17,9 @@ class Whatsapp extends Model
         'api_key',
         'wazzup_id',
         'status',
-        'user_id'
+        'user_id',
+        'whatsapp',
+        'channelId'
     ];
 
     public function user()

@@ -10,49 +10,67 @@ class Wazzup
 {
     const BASE_API = 'http://api.wazzup24.com/v2/';
 
-    private static function instance($api_key)
+    private function send($api_key, $api, $method = 'GET', $params = [])
     {
         return Http::withHeaders([
             'Authorization' => 'Basic ' . $api_key
-        ]);
+        ])->send($method, self::BASE_API . $api, $params);
     }
 
-    public static function updateOrCreate($api_key, $id, $username )
+    public  function updateOrCreate($api_key, $id, $username)
     {
-        $response = self::instance($api_key)->patch(self::BASE_API . 'users', [
+        return self::result($this->send($api_key, 'users', 'patch', [
             [
                 'id' => $id,
                 'name' => $username
             ]
-        ]);
-
-        if ($response->status() !== 200) {
-            return ['success' => false, 'errors' => $response->object()->errors];
-        }
-
-        return ['success' => true];
+        ]));
     }
 
-    public static function sendMessage($api_key, $channelId, $chatId, $text)
+    public  function sendMessage($api_key, $channelId, $chatId, $text)
     {
-        $response = self::instance($api_key)->patch(self::BASE_API . 'sendMessage', [
-            [
-                'channelId' => $channelId,
-                'chatId' => $chatId,
-                'text' => $text
-            ]
-        ]);
+        return self::result($this->send($api_key, 'send_message', 'post', [
+            'channelId' => $channelId,
+            'chatId' => $chatId,
+            'text' => $text,
+            'chatType' => 'whatsapp',
+        ]));
 
-        if ($response->status() !== 200) {
-            return ['success' => false, 'errors' => $response->object()->errors];
-        }
-
-        return ['success' => true];
     }
 
     public static function getChannels($api_key)
     {
-        $response = self::instance($api_key)->get(self::BASE_API.'channels');
-        dd($response->object());
+        return self::result(self::instance($api_key, 'channels'));
+    }
+
+    public static function openChat($api_key, $wazzup_id, $username, $scope = 'global', $filter = [])
+    {
+        return self::result(self::instance($api_key, 'iframe', 'post', [
+            'user' => [
+                'id' => $wazzup_id,
+                'name' => $username
+            ],
+            'scope' => $scope,
+            'filter' => [$filter]
+        ]));
+    }
+
+    public static function setWebhook($api_key, $id)
+    {
+        return self::result(self::instance($api_key, 'webhooks', 'post', [
+            'url' => route('webhook', $id)
+        ]));
+    }
+
+    private static function result($response)
+    {
+        if ($response->status() > 400) {
+            if ($response->status() == 404) {
+                return ['success' => false, 'errors' => 'Chat not found', 'status' => $response->status()];
+            }
+            return ['success' => false, 'errors' => $response->object()->errors, 'status' => $response->status()];
+        }
+
+        return ['success' => true, 'data' => $response->object()];
     }
 }

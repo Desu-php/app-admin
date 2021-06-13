@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
-use App\Models\Service;
 use App\Models\User;
 use App\Models\Whatsapp;
 use App\Services\Wazzup;
@@ -24,8 +23,9 @@ class WhatsappController extends Controller
     public function index()
     {
         //
+        $whatsapp = Whatsapp::where('user_id', Auth::id())->first();
 
-        return view('whatsapp.index');
+        return view('whatsapp.index', compact('whatsapp'));
 
     }
 
@@ -44,20 +44,21 @@ class WhatsappController extends Controller
 
         return DataTables::eloquent($datas)
             ->addColumn('action', function ($data) {
-                $btns = '<a href="javascript:void(0)"  onclick="Delete(' . $data->id . ')" class="btn btn-danger"><i class="fa fa-trash-o"></i> Удалить</a>';
-                $btns .= ' <a href="' . url('whatsapp/' . $data->id . '/edit') . '"  class="btn btn-warning"><i class="fa fa-pencil-square-o"></i> Изменить</a>';
+                $btns = '<a href="javascript:void(0)"  onclick="Delete(' . $data->id . ')" class="btn btn-danger">Удалить</a>';
+                $btns .= ' <a href="' . url('whatsapp/' . $data->id . '/edit') . '"  class="btn btn-warning">Изменить</a>';
+//                $btns .= ' <a href="' . route('whatsapp.channel.create', $data->id) . '"  class="btn btn-primary">Привязать канал</a>';
                 return $btns;
             })
             ->addColumn('chat', function ($data) {
-                return '<a href="' . route('whatsapp.show', $data->id) . '" target="_blank">Открыть</a>';
+                return '<a href="' . route('openChat') . '" target="_blank">Открыть</a>';
             })
             ->editColumn('status', function ($data) {
                 if ($data->status == Whatsapp::ENABLED) {
-                    return 'Включен';
+                    return '<span class="badge badge-success">Включен</span>';
                 }
-                return 'Отключен';
+                return '<span class="badge badge-danger">Отключен</span>';
             })
-            ->rawColumns(['action', 'chat'])
+            ->rawColumns(['action', 'chat', 'status'])
             ->escapeColumns(null)
             ->make(true);
     }
@@ -95,7 +96,6 @@ class WhatsappController extends Controller
             'wazzup_id' => 'required|string|max:255',
             'api_key' => 'required|string|max:255',
             'status' => 'nullable|boolean',
-            'channel_id' => 'required|string'
         ]);
 
         if ($validator->fails()) {
@@ -107,10 +107,10 @@ class WhatsappController extends Controller
 
         $whatsapp = Whatsapp::where('user_id', Auth::id())->count();
 
-        if ($whatsapp > 0){
-            return  response()->json([
+        if ($whatsapp > 0) {
+            return response()->json([
                 'success' => false,
-                'error' => 'У вас уже существует аккаунт'
+                'message' => 'У вас уже существует аккаунт'
             ], 403);
         }
 
@@ -124,12 +124,12 @@ class WhatsappController extends Controller
             $data['user_id'] = Auth::id();
         }
 
-        $wazzup = Wazzup::updateOrCreate($request->api_key,$request->wazzup_id, $request->username);
+        $wazzup = Wazzup::updateOrCreate($request->api_key, $request->wazzup_id, $request->username);
 
         if (!$wazzup['success']) {
             return response()->json([
                 'success' => false,
-                'errors' => $wazzup['errors']
+                'message' => $wazzup['errors'][0]
 
             ], 500);
         }
@@ -148,34 +148,46 @@ class WhatsappController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function openChat(Request $request)
     {
         //
-        $account = Whatsapp::where('id', $id)
-            ->where('status', Account::ENABLED)
-            ->where('user_id', Auth::id());
-
-        $account = $account->first();
+        $account = Whatsapp::where('status', Whatsapp::ENABLED)
+            ->where('user_id', Auth::id())->first();
 
         if (is_null($account)) {
             abort(404);
         }
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Basic ' . $account->api_key
-        ])->post('http://api.wazzup24.com/v2/iframe', [
-            'user' => [
-                'id' => $account->wazzup_id,
-                'name' => $account->username
-            ],
-            'scope' => 'global'
-        ]);
+        $scope = 'global';
+        $filter = [];
 
-        if ($response->status() !== 200) {
-            return back()->withErrors($response->object()->errors);
+        if ($request->has('number')) {
+
+            if (!empty($request->text)) {
+                $message = Wazzup::sendMessage($account->api_key, $account->channelId, $request->number, $request->text);
+                if (!$message['success']) {
+                    return response()->json($message, $message['status']);
+                }
+            }
+
+            $scope = 'card';
+            $filter = [
+                'chatType' => 'whatsapp',
+                'chatId' => $request->number,
+                'activeChat' => [
+                    'chatType' => 'whatsapp',
+                    'chatId' => $request->number,
+                ]
+            ];
         }
 
-        return redirect()->to($response->object()->url);
+        $data = Wazzup::openChat($account->api_key, $account->wazzup_id, $account->username, $scope, $filter);
+
+        if (!$data['success']) {
+            return response()->json($data, $data['status']);
+        }
+
+        return redirect()->to($data['data']->url);
     }
 
     /**
@@ -194,7 +206,7 @@ class WhatsappController extends Controller
             $user->where('user_id', Auth::id());
         } else {
             $users = User::whereHas('roles', function (Builder $builder) {
-                $builder->where('name', 'Client');
+                $builder->where('name', User::CLIENT);
             })->get();
         }
 
@@ -204,7 +216,14 @@ class WhatsappController extends Controller
             abort(404);
         }
 
-        return view('whatsapp.edit', compact('users', 'data'));
+        $channels = Wazzup::getChannels($data->api_key);
+
+        if (!$channels['success']) {
+            return response()->json($channels, $channels['status']);
+        }
+        $channels = $channels['data'];
+
+        return view('whatsapp.edit', compact('users', 'data', 'channels'));
     }
 
     /**
@@ -223,6 +242,7 @@ class WhatsappController extends Controller
             'wazzup_id' => 'required|string:255',
             'api_key' => 'required|string|max:255',
             'status' => 'nullable|boolean',
+            'channelId' => 'required|string'
         ]);
 
         if ($validator->fails()) {
@@ -238,7 +258,7 @@ class WhatsappController extends Controller
             $data['status'] = 0;
         }
 
-        $wazzup = Wazzup::updateOrCreate($request->wazzup_id, $request->username, $request->api_key);
+        $wazzup = Wazzup::updateOrCreate($request->api_key, $request->wazzup_id, $request->username);
 
         if (!$wazzup['success']) {
             return response()->json([
@@ -280,8 +300,45 @@ class WhatsappController extends Controller
         return Response()->json($account->delete());
     }
 
-    public function sendMessage(Request $request)
+    public function channelCreate(Whatsapp $whatsapp)
     {
+        if (is_null($whatsapp) || $whatsapp->user_id != Auth::id()) {
+            abort(404);
+        }
 
+        $data = Wazzup::getChannels($whatsapp->api_key);
+
+        if (!$data['success']) {
+            return response()->json($data, $data['status']);
+        }
+        $channels = $data['data'];
+
+        return view('whatsapp.create_channel', ['data' => $whatsapp, 'channels' => $channels]);
+    }
+
+    public function channelStore(Request $request, Whatsapp $whatsapp)
+    {
+        if (is_null($whatsapp) || $whatsapp->user_id != Auth::id()) {
+            abort(404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'channelId' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->getMessageBag()
+            ], 400);
+        }
+
+        $whatsapp->channelId = $request->channelId;
+        $whatsapp->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Вы успешно привязали канал к аккаунту'
+        ]);
     }
 }

@@ -22,8 +22,13 @@ Route::group(['prefix' => '/', 'middleware' => ['auth']], function () {
     });
 
     Route::resource('whatsapp', 'WhatsappController');
+    Route::get('/whatsapp/channel/create/{whatsapp}', 'WhatsappController@channelCreate')->name('whatsapp.channel.create');
     Route::get('/whatsapp/ajax/get', 'WhatsappController@indexAjax')->name('whatsapp.indexAjax');
+    Route::put('/whatsapp/channel/{whatsapp}', 'WhatsappController@channelStore')->name('whatsapp.channel.store');
+    Route::get('/gotowhatsap', 'WhatsappController@openChat')->name('openChat');
 });
+
+Route::get('/whatsapp/webhook/{id}', 'WhatsappController@openChat')->name('webhook');
 
 
 Auth::routes(['registration' => false]);

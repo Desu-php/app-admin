@@ -32,6 +32,20 @@
                             <input type="text" class="form-control" id="wazzup" name="wazzup_id"
                                    placeholder="Id пользователя в crm-системе" value="{{$data->wazzup_id}}" required>
                         </div>
+                        <div class="form-group">
+                            <label for="service" id="channelId">Канал</label>
+                            <select class="form-control" id="channelId" name="channelId" required>
+                                @foreach($channels as $channel)
+                                    <option
+                                        @if($channel->channelId == $data->channelId)
+                                        selected
+                                        @endif
+                                        value="{{$channel->channelId}}">
+                                        {{$channel->transport.' '.$channel->plainId .' '. $channel->state}}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="form-check mb-5">
                             <input type="checkbox"
                                    @if($data->status == \App\Models\Whatsapp::ENABLED)
@@ -41,6 +55,7 @@
                             <label class="form-check-label"
                                    for="exampleCheck1">Включить</label>
                         </div>
+
                         <button type="submit" class="btn btn-success">Добавить</button>
                     </form>
                 </div>

@@ -16,7 +16,13 @@
             <div class="card card-small mb-4">
                 <div class="card-header border-bottom d-flex justify-content-between">
                     <h6 class="m-0">Аккаунты клиентов</h6>
+                    @role('Client')
+                    @if(is_null($whatsapp))
                     <a href="{{route('whatsapp.create')}}" class="btn btn-success">Добавить</a>
+                    @else
+                    <a href="{{route('whatsapp.channel.create', $whatsapp->id)}}"  class="btn btn-primary">Привязать канал</a>
+                    @endif
+                    @endrole
                 </div>
                 <div class="card-body p-2 pb-3 text-center table-responsive">
                     <table class="table mb-0" id="dataTable">
@@ -29,9 +35,14 @@
                             <th scope="col" class="border-0">Имя пользователя</th>
                             <th scope="col" class="border-0">Id пользователя в crm-системе</th>
                             <th scope="col" class="border-0">Статус</th>
+                            @role('Client')
                             <th scope="col" class="border-0">Api key</th>
+                            @endrole
+                            <th scope="col" class="border-0">Канал Id</th>
+                            @role('Client')
                             <th scope="col" class="border-0">Чат</th>
                             <th scope="col" class="border-0">Действие</th>
+                            @endrole
                         </tr>
                         </thead>
 
@@ -51,9 +62,14 @@
             {data: "username", name: 'username'},
             {data: "wazzup_id", name: 'wazzup_id'},
             {data: "status", name: 'status'},
+            @role('Client')
             {data: "api_key", name: 'api_key'},
+            @endrole
+            {data: "channelId", name: 'channelId'},
+            @role('Client')
             {data: "chat", name: 'chat'},
             {data: 'action', name: 'action', orderable: false, searchable: false, width: 180}
+            @endrole
         ]
     </script>
 @endpush
