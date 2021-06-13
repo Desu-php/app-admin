@@ -355,9 +355,9 @@ class WhatsappController extends Controller
         Log::info('ACCOUNT ID - ' . $id);
 
         Log::info('FIRST '.json_encode($request->messages));
-        Log::info('2 '.json_encode($request->messages[0]));
-        Log::info('3 '.json_encode($request->messages[0]['chatId']));
-        Log::info('4 '.json_encode($request->messages['chatId']));
+//        Log::info('2 '.json_encode($request->messages[0]));
+//        Log::info('3 '.json_encode($request->messages[0]['chatId']));
+//        Log::info('4 '.json_encode($request->messages['chatId']));
 
         return false;
         $whatsapp = Whatsapp::find($id);
