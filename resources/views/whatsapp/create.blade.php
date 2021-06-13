@@ -26,11 +26,11 @@
                             <label for="api_key">Api key</label>
                             <input type="text" class="form-control" id="api_key" name="api_key" placeholder="Api key" value="">
                         </div>
-{{--                        <div class="form-group">--}}
-{{--                            <label for="wazzup">Id пользователя в crm-системе</label>--}}
-{{--                            <input type="text" class="form-control" id="wazzup" name="wazzup_id"--}}
-{{--                                   placeholder="Id пользователя в crm-системе" value="" required>--}}
-{{--                        </div>--}}
+                        <div class="form-group">
+                            <label for="wazzup">Id пользователя в crm-системе</label>
+                            <input type="text" class="form-control" id="wazzup" name="wazzup_id"
+                                   placeholder="Id пользователя в crm-системе" value="" required>
+                        </div>
                             <div class="form-check mb-5">
                                 <input type="checkbox" class="form-check-input" id="exampleCheck1" value="1" name="status">
                                 <label class="form-check-label" for="exampleCheck1">Включить</label>

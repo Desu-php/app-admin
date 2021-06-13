@@ -95,7 +95,7 @@ class WhatsappController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'nullable|exists:users,id',
             'username' => 'required|string|max:255',
-            'wazzup_id' => 'nullable|string|max:255',
+            'wazzup_id' => 'required|string|max:255',
             'api_key' => 'required|string|max:255',
             'status' => 'nullable|boolean',
         ]);
@@ -126,9 +126,7 @@ class WhatsappController extends Controller
             $data['user_id'] = Auth::id();
         }
 
-        $whatsapp = Whatsapp::create($data);
-
-        $result = $wazzup->updateOrCreate($whatsapp->id, $request->username);
+        $result = $wazzup->updateOrCreate($request->wazzup_id, $request->username);
 
         if (!$result['success']) {
             return response()->json([
@@ -137,6 +135,10 @@ class WhatsappController extends Controller
 
             ], 500);
         }
+
+        $whatsapp = Whatsapp::create($data);
+
+
 
 
         $result = $wazzup->setWebhook($whatsapp->id);
@@ -275,7 +277,7 @@ class WhatsappController extends Controller
 
         $account->update($data);
 
-        $result = $wazzup->updateOrCreate($id, $request->username);
+        $result = $wazzup->updateOrCreate($account->wazzup_id, $request->username);
 
         if (!$result['success']) {
             return response()->json([
