@@ -367,7 +367,7 @@ class WhatsappController extends Controller
             return false;
         }
 
-        $messages = $request->messages;
+        $messages = $request->messages[0];
 
 
         $whatsapp = Whatsapp::find($id);
