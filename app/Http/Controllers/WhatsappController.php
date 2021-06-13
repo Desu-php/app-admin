@@ -377,7 +377,13 @@ class WhatsappController extends Controller
         }
 
         $messages['user_id'] = $whatsapp->user_id;
+        $message_id = $messages['messageId'];
+        unset($messages['messageId']);
 
-        return Message::create($messages);
+        return Message::updateOrCreate([
+            'messageId' => $message_id
+        ], $messages
+
+        );
     }
 }
