@@ -354,31 +354,25 @@ class WhatsappController extends Controller
         Log::info('HOOK - ' . json_encode($request->all()));
         Log::info('ACCOUNT ID - ' . $id);
 
-        Log::info('FIRST '.json_encode($request->messages));
-        Log::info('2 '.json_encode($request->messages[0]));
-        Log::info('3 '.json_encode($request->messages[0]['chatId']));
+        Log::info('FIRST ' . json_encode($request->messages));
+        Log::info('2 ' . json_encode($request->messages[0]));
+        Log::info('3 ' . json_encode($request->messages[0]['chatId']));
+
+        if (empty($request->messages)) {
+            return false;
+        }
+
+        $messages = $request->messages;
 
 
-        return false;
         $whatsapp = Whatsapp::find($id);
 
         if (is_null($whatsapp)) {
             return false;
         }
 
-//        Message::create([
-//            'user_id' => $whatsapp->user_id,
-//            'messageId' => ,
-//            'chatType',
-//            'chatId',
-//            'channelId',
-//            'authorType',
-//            'dateTime',
-//            'type',
-//            'status',
-//            'text',
-//            'authorName',
-//            'content'
-//        ])
+        $messages['user_id'] = $whatsapp->user_id;
+
+        Message::create($messages);
     }
 }
