@@ -1,0 +1,11 @@
+.sidebar-dropdown .link-icon::after {
+    font-family: 'Font Awesome 5 Free';
+    content: "\f150";
+    position: absolute;
+    bottom: 29%;
+    right: 5px;
+    font-size: 14px;
+}
+.sidebar-dropdown .nav-link:first-child{
+    position: relative;
+}
