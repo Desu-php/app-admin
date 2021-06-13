@@ -67,7 +67,7 @@ class Wazzup
     {
         Log::info('HOOK-INFO - '.route('webhook', $id));
         return $this->result($this->send('webhooks', 'PUT', [
-            'url' => route('webhook', $id)
+            'url' => 'https://app-admin.svetolyuks.ru/whatsapp/webhook/6'
         ]));
     }
 
