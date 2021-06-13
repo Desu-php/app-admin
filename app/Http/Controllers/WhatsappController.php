@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\Message;
 use App\Models\User;
 use App\Models\Whatsapp;
 use App\Services\Wazzup;
@@ -138,7 +139,7 @@ class WhatsappController extends Controller
         }
 
 
-       $result = $wazzup->setWebhook($whatsapp->id);
+        $result = $wazzup->setWebhook($whatsapp->id);
         dd($result);
 
         return Response()->json([
@@ -348,8 +349,36 @@ class WhatsappController extends Controller
         ]);
     }
 
-    public function webhook(Request $request)
+    public function webhook(Request $request, $id)
     {
-        Log::info('HOOK - '.json_encode($request->all()));
+        Log::info('HOOK - ' . json_encode($request->all()));
+        Log::info('ACCOUNT ID - ' . $id);
+
+        Log::info('FIRST '.json_encode($request->messages));
+        Log::info('2 '.json_encode($request->messages[0]));
+        Log::info('3 '.json_encode($request->messages[0]['chatId']));
+        Log::info('4 '.json_encode($request->messages['chatId']));
+
+        return false;
+        $whatsapp = Whatsapp::find($id);
+
+        if (is_null($whatsapp)) {
+            return false;
+        }
+
+//        Message::create([
+//            'user_id' => $whatsapp->user_id,
+//            'messageId' => ,
+//            'chatType',
+//            'chatId',
+//            'channelId',
+//            'authorType',
+//            'dateTime',
+//            'type',
+//            'status',
+//            'text',
+//            'authorName',
+//            'content'
+//        ])
     }
 }
