@@ -52,6 +52,8 @@ function Delete(id) {
                         swal("Усешно удален", {
                             icon: "success",
                         });
+                        $('#btn_channel').hide()
+                        $('#btn_add').show()
                         $('#dataTable').DataTable().ajax.reload();
                     }
                 })

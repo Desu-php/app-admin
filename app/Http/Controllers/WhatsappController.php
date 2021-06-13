@@ -140,7 +140,10 @@ class WhatsappController extends Controller
 
 
         $result = $wazzup->setWebhook($whatsapp->id);
-        dd($result);
+
+        if (!$result['success']) {
+            return response()->json($result, 500);
+        }
 
         return Response()->json([
             'success' => true,

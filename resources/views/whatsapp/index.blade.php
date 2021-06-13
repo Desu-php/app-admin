@@ -17,10 +17,17 @@
                 <div class="card-header border-bottom d-flex justify-content-between">
                     <h6 class="m-0">Аккаунты клиентов</h6>
                     @role('Client')
-                    @if(is_null($whatsapp))
-                    <a href="{{route('whatsapp.create')}}" class="btn btn-success">Добавить</a>
-                    @else
-                    <a href="{{route('whatsapp.channel.create', $whatsapp->id)}}"  class="btn btn-primary">Привязать канал</a>
+
+                    <a href="{{route('whatsapp.create')}}"
+                       @if(!empty($whatsapp))
+                           style="display:none"
+                       id="btn_add"
+                       @endif
+                       class="btn btn-success">Добавить</a>
+                    @if(!empty($whatsapp))
+                    <a href="{{route('whatsapp.channel.create', $whatsapp->id)}}"
+                       id="btn_channel"
+                       class="btn btn-primary">Привязать канал</a>
                     @endif
                     @endrole
                 </div>
