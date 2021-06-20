@@ -139,8 +139,6 @@ class WhatsappController extends Controller
         $whatsapp = Whatsapp::create($data);
 
 
-
-
         $result = $wazzup->setWebhook($whatsapp->id);
 
         if (!$result['success']) {
@@ -175,6 +173,14 @@ class WhatsappController extends Controller
         if ($request->has('number')) {
 
             if (!empty($request->text)) {
+
+                if (is_null($account->channelId)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Канал не привязан'
+                    ]);
+                }
+
                 $message = $wazzup->sendMessage($account->channelId, $request->number, $request->text);
                 if (!$message['success']) {
                     return response()->json($message, $message['status']);

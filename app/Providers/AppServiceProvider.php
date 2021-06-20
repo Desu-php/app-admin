@@ -27,10 +27,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         //
-        $this->app->bind(Wazzup::class, function () {;
+        $this->app->bind(Wazzup::class, function () {
             if (!empty(Request()->api_key)) {
                 $api_key = Request()->api_key;
             } else {
+                if (is_null(Auth::user()->whatsapp)) {
+                    abort(403);
+                }
                 $api_key = Auth::user()->whatsapp->api_key;
             }
             return new Wazzup($api_key);
