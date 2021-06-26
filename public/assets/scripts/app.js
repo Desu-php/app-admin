@@ -120,7 +120,7 @@ if (typeof (columns) !== "undefined") {
 
 $('#added_form').submit(function (e) {
     e.preventDefault()
-    var formData = $(this).serialize()
+    var formData = new FormData(this)
     var form = $(this)
     form.find('button').attr('disabled', true)
     validationErrorsClear(form)
@@ -128,6 +128,8 @@ $('#added_form').submit(function (e) {
         url: form.attr('action'),
         data: formData,
         type: form.attr('method'),
+        processData: false,
+        contentType: false,
         success: function (data) {
             showAlert('success', 'Успешно!', data.message)
             if (form.attr('method').toLowerCase() === 'post') {

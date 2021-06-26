@@ -27,11 +27,11 @@
                             <input type="text" class="form-control" id="api_key" name="api_key" placeholder="Api key"
                                    value="{{$data->api_key}}">
                         </div>
-{{--                        <div class="form-group">--}}
-{{--                            <label for="wazzup">Id пользователя в crm-системе</label>--}}
-{{--                            <input type="text" class="form-control" id="wazzup" name="wazzup_id"--}}
-{{--                                   placeholder="Id пользователя в crm-системе" value="{{$data->wazzup_id}}" required>--}}
-{{--                        </div>--}}
+                        <div class="form-group">
+                            <label for="wazzup">Id пользователя в crm-системе</label>
+                            <input type="text" class="form-control" id="wazzup" name="wazzup_id"
+                                   placeholder="Id пользователя в crm-системе" value="{{$data->wazzup_id}}" required>
+                        </div>
                         <div class="form-group">
                             <label for="service" id="channelId">Канал</label>
                             <select class="form-control" id="channelId" name="channelId" required>
@@ -56,7 +56,7 @@
                                    for="exampleCheck1">Включить</label>
                         </div>
 
-                        <button type="submit" class="btn btn-success">Добавить</button>
+                        <button type="submit" class="btn btn-success">Обновить</button>
                     </form>
                 </div>
             </div>

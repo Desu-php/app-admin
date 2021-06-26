@@ -31,6 +31,13 @@
                     <span>Аккаунты wazzup</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{(request()->is('sbisAccounts') || request()->is('sbisAccounts/*'))?'active':''}}"
+                   href="{{route('sbisAccounts.index')}}">
+                    <i class="material-icons">person</i>
+                    <span>Аккаунты sbis</span>
+                </a>
+            </li>
 {{--            <li class="sidebar-dropdown nav-item">--}}
 {{--                <a href="#" class="nav-link link-icon--}}
 {{--                    {{(request()->is('advertisings') || request()->is('advertisings/*'))--}}

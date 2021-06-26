@@ -2,11 +2,11 @@
 @section('content')
     <div class="main-content-container container-fluid px-4">
         <!-- Page Header -->
-        @include('partials.header', ['title' => 'Аккаунт wazzup'])
+        @include('partials.header', ['title' => 'Аккаунт sbis'])
         <div class="col-md-6 col-sm-12 mb-4">
             <div class="stats-small stats-small--1 card card-small">
                 <div class="card-body">
-                    <form action="{{route('whatsapp.store')}}" method="post" id="added_form">
+                    <form action="{{route('sbisAccounts.store')}}" method="post" id="added_form">
                         @if(!empty($users))
                             <div class="form-group">
                                 <label for="service" id="users">Клиенты</label>
@@ -18,18 +18,18 @@
                             </div>
                         @endif
                         <div class="form-group">
-                            <label for="username">username</label>
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Username"
+                            <label for="app_client_id ">ID приложения</label>
+                            <input type="text" class="form-control" id="app_client_id" name="app_client_id" placeholder="ID приложения"
                                    value="" required>
                         </div>
                         <div class="form-group">
-                            <label for="api_key">Api key</label>
-                            <input type="text" class="form-control" id="api_key" name="api_key" placeholder="Api key" value="">
+                            <label for="app_secret">защищенный ключ</label>
+                            <input type="text" class="form-control" id="app_secret" name="app_secret" placeholder="защищенный ключ" value="">
                         </div>
                         <div class="form-group">
-                            <label for="wazzup">Id пользователя в crm-системе</label>
-                            <input type="text" class="form-control" id="wazzup" name="wazzup_id"
-                                   placeholder="Id пользователя в crm-системе" value="" required>
+                            <label for="secret_key">сервисный ключ</label>
+                            <input type="file" class="form-control" id="secret_key" name="secret_key"
+                                   placeholder="сервисный ключ"  required>
                         </div>
                             <div class="form-check mb-5">
                                 <input type="checkbox" class="form-check-input" id="exampleCheck1" value="1" name="status" checked>

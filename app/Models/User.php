@@ -48,4 +48,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Whatsapp::class);
     }
+
+    public function sbis()
+    {
+        return $this->hasOne(SbisAccount::class);
+    }
 }

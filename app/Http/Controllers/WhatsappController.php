@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\Message;
+use App\Models\Sbis;
+use App\Models\SbisAccount;
 use App\Models\User;
 use App\Models\Whatsapp;
 use App\Services\Wazzup;
@@ -13,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
 class WhatsappController extends Controller
@@ -47,20 +50,17 @@ class WhatsappController extends Controller
         return DataTables::eloquent($datas)
             ->addColumn('action', function ($data) {
                 $btns = '<a href="javascript:void(0)"  onclick="Delete(' . $data->id . ')" class="btn btn-danger">Удалить</a>';
-                $btns .= ' <a href="' . url('whatsapp/' . $data->id . '/edit') . '"  class="btn btn-warning">Изменить</a>';
+                $btns .= ' <a href="' . url('sbisAccounts/' . $data->id . '/edit') . '"  class="btn btn-warning">Изменить</a>';
 //                $btns .= ' <a href="' . route('whatsapp.channel.create', $data->id) . '"  class="btn btn-primary">Привязать канал</a>';
                 return $btns;
             })
-            ->addColumn('chat', function ($data) {
-                return '<a href="' . route('openChat') . '" target="_blank">Открыть</a>';
-            })
             ->editColumn('status', function ($data) {
-                if ($data->status == Whatsapp::ENABLED) {
+                if ($data->status == SbisAccount::ENABLED) {
                     return '<span class="badge badge-success">Включен</span>';
                 }
                 return '<span class="badge badge-danger">Отключен</span>';
             })
-            ->rawColumns(['action', 'chat', 'status'])
+            ->rawColumns(['action', 'status'])
             ->escapeColumns(null)
             ->make(true);
     }
@@ -170,9 +170,10 @@ class WhatsappController extends Controller
         $scope = 'global';
         $filter = [];
 
-        if ($request->has('number')) {
+        if ($request->has('number') && $request->has('sbislidid')) {
+            $phone = $this->phoneFormat($request->number);
 
-            if (!empty($request->text)) {
+            if ($request->has('text')) {
 
                 if (is_null($account->channelId)) {
                     return response()->json([
@@ -181,19 +182,24 @@ class WhatsappController extends Controller
                     ]);
                 }
 
-                $message = $wazzup->sendMessage($account->channelId, $request->number, $request->text);
+                $message = $wazzup->sendMessage($account->channelId, $phone, $request->text);
                 if (!$message['success']) {
                     return response()->json($message, $message['status']);
                 }
             }
 
+            Sbis::firstOrCreate([
+                'sbislidid' => $request->sbislidid,
+                'chatId' => $phone
+            ]);
+
             $scope = 'card';
             $filter = [
                 'chatType' => 'whatsapp',
-                'chatId' => $request->number,
+                'chatId' => $phone,
                 'activeChat' => [
                     'chatType' => 'whatsapp',
-                    'chatId' => $request->number,
+                    'chatId' => $phone,
                 ]
             ];
         }
@@ -382,7 +388,7 @@ class WhatsappController extends Controller
 
         $whatsapp = Whatsapp::find($id);
 
-        if (is_null($whatsapp)) {
+        if (is_null($whatsapp) || $whatsapp->status == Whatsapp::DISABLED) {
             return false;
         }
 
@@ -395,5 +401,13 @@ class WhatsappController extends Controller
         ], $messages
 
         );
+    }
+
+    private function phoneFormat($phone)
+    {
+        if (Str::substr($phone, 0, 1) == '8') {
+            return Str::replaceFirst('8', '+7', $phone);
+        }
+        return $phone;
     }
 }

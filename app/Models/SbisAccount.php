@@ -5,27 +5,28 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Message extends Model
+class SbisAccount extends Model
 {
     use HasFactory;
 
+    const ENABLED = 1;
+    const DISABLED = 0;
+
     protected $fillable = [
-        'user_id',
-        'messageId',
-        'chatType',
-        'chatId',
-        'channelId',
-        'authorType',
-        'dateTime',
-        'type',
+        'app_client_id',
+        'app_secret',
+        'secret_key',
         'status',
-        'text',
-        'authorName',
-        'content'
+        'user_id'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function token()
+    {
+        return $this->hasOne(SbisToken::class);
     }
 }
