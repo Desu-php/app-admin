@@ -132,7 +132,8 @@ $('#added_form').submit(function (e) {
         contentType: false,
         success: function (data) {
             showAlert('success', 'Успешно!', data.message)
-            if (form.attr('method').toLowerCase() === 'post') {
+            const method  = $('input[name="_method"]')
+            if (form.attr('method').toLowerCase() === 'post' && method.length === 0) {
                 validationErrorsClear(form, true)
             } else {
                 validationErrorsClear(form)

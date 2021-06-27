@@ -11,7 +11,8 @@ class Sbis extends Model
 
     protected $fillable = [
         'sbislidid',
-        'chatId'
+        'chatId',
+        'sbis_account_id'
     ];
 
     public function messages()

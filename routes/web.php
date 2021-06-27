@@ -27,6 +27,8 @@ Route::group(['prefix' => '/', 'middleware' => ['auth']], function () {
 
     Route::resource('sbisAccounts', 'SbisAccountController');
     Route::get('sbisAccounts/ajax/get', 'SbisAccountController@indexAjax');
+    Route::get('sbisAccounts/create/theme', 'SbisAccountController@createTheme')->name('sbisAccounts.create_theme');
+    Route::post('sbisAccounts/store_theme', 'SbisAccountController@storeTheme')->name('sbisAccounts.store_theme');
 });
 
 Route::post('/whatsapp/webhook/{id}', 'WhatsappController@webhook')->name('webhook');

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\Sbis;
 use App\Services\Wazzup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,12 +32,21 @@ class AppServiceProvider extends ServiceProvider
             if (!empty(Request()->api_key)) {
                 $api_key = Request()->api_key;
             } else {
-                if (is_null(Auth::user()->whatsapp)) {
-                    abort(403);
-                }
+
+                abort_if(is_null(Auth::user()->whatsapp), 403);
+
                 $api_key = Auth::user()->whatsapp->api_key;
             }
             return new Wazzup($api_key);
+        });
+
+        $this->app->singleton(Sbis::class, function (){
+
+            abort_if(is_null(Auth::user()->sbis), 403);
+
+            $sbisAccount = Auth::user()->sbis;
+
+            return new Sbis($sbisAccount->app_client_id, $sbisAccount->app_secret, $sbisAccount->secret_key );
         });
     }
 }

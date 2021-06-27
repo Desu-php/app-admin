@@ -31,6 +31,8 @@
                             @endrole
                             <th scope="col" class="border-0">Статус</th>
                             @role('Client')
+                            <th scope="col" class="border-0">Тема</th>
+                            <th scope="col" class="border-0">Создавать лид?</th>
                             <th scope="col" class="border-0">ID приложения</th>
                             <th scope="col" class="border-0">защищенный ключ</th>
                             <th scope="col" class="border-0">сервисный ключ</th>
@@ -54,6 +56,8 @@
         @endrole
             {data: "status", name: 'status'},
             @role('Client')
+            {data: "theme", name: 'theme'},
+            {data: "create_lead", name: 'create_lead'},
             {data: "app_client_id", name: 'app_client_id'},
             {data: "app_secret", name: 'app_secret'},
             {data: "secret_key", name: 'secret_key'},

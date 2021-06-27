@@ -38,7 +38,7 @@
                         <div class="form-group">
                             {{$data->secret_key}}
                         </div>
-                        <div class="form-check mb-5">
+                        <div class="form-check">
                             <input type="checkbox"
                                    @if($data->status == \App\Models\SbisAccount::ENABLED)
                                    checked
@@ -46,6 +46,15 @@
                                    class="form-check-input" id="exampleCheck1" value="1" name="status">
                             <label class="form-check-label"
                                    for="exampleCheck1">Включить</label>
+                        </div>
+                        <div class="form-check mb-5">
+                            <input type="checkbox"
+                                   @if($data->create_lead == \App\Models\SbisAccount::CREATED_LEAD_AVAILABLE)
+                                   checked
+                                   @endif
+                                   class="form-check-input" id="create_lead" value="1" name="create_lead">
+                            <label class="form-check-label"
+                                   for="create_lead">Создавать лид?</label>
                         </div>
 
                         <button type="submit" class="btn btn-success">Обновить</button>

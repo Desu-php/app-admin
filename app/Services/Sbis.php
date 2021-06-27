@@ -4,31 +4,24 @@
 namespace App\Services;
 
 
-use App\Models\SbisAccount;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class Sbis
 {
-    private $app_client_id;
-    private $app_secret;
-    private $secret_key;
     private $sid;
 
     public function __construct($app_client_id, $app_secret, $secret_key)
     {
-        $this->app_client_id = $app_client_id;
-        $this->app_secret = $app_secret;
-        $this->secret_key = $secret_key;
-        $this->sid = $this->getToken()->sid;
+        $this->sid = $this->getToken($app_client_id, $app_secret, $secret_key)->sid;
     }
 
-    public function getToken()
+    public function getToken($app_client_id, $app_secret, $secret_key)
     {
         $response = Http::post('https://online.sbis.ru/oauth/service/', [
-            'app_client_id' => $this->app_client_id,
-            'app_secret' => $this->app_secret,
-            'secret_key' => $this->secret_key
+            'app_client_id' => $app_client_id,
+            'app_secret' => $app_secret,
+            'secret_key' => $secret_key
         ]);
 
         if (!$response->ok()) {
@@ -65,7 +58,7 @@ class Sbis
 
         ], 'EventData');
 
-        dd($response->object());
+        $response->object();
     }
 
     private function send($method, $params, $type = false)
@@ -90,9 +83,9 @@ class Sbis
         ]);
     }
 
-    public function createLead()
+    public function createLead($theme, $fio, $phone)
     {
-        $theme = $this->getTheme();
+        $theme = $this->getTheme($theme);
         $params = [
             'd' => [
                 'Регламент' => $theme['result']['d']['ИдентификаторТемы'],
@@ -106,7 +99,7 @@ class Sbis
                         'Телефон' => 'Строка'
                     ],
                 ],
-                'Примечание' => 'Тест лид'
+                'Примечание' => 'Лид с wazzup'
             ],
             's' => [
                 'Регламент' => 'Строка',
@@ -119,13 +112,13 @@ class Sbis
 
         $response = $this->send('CRMLead.insertRecord', $params, 'Лид');
 
-        dd($response->object());
+        return $response->collect();
     }
 
-    public function getTheme()
+    public function getTheme($name)
     {
         $params = [
-            'НаименованиеТемы' => 'Голосовой бот'
+            'НаименованиеТемы' => $name
         ];
 
         $response = $this->send('CRMLead.getCRMThemeByName', $params);
@@ -137,28 +130,17 @@ class Sbis
     {
         $response = $this->send('CRMTheme.GetList', [
             "d" => [
-                true,
-                true,
-                null
+                'HideDeleted' => true,
+                'WithGroup' => true,
+                'CalcCol' => null
             ],
             "s" => [
-                [
-                    "t" => "Логическое",
-                    "n" => "HideDeleted"
-                ],
-                [
-                    "t" => "Логическое",
-                    "n" => "WithGroup"
-                ],
-                [
-                    "t" => [
-                        "n" => "Массив",
-                        "t" => "Строка"
-                    ],
-                    "n" => "CalcCol"
-                ],
+                'HideDeleted' => 'Логическое',
+                'WithGroup' => 'Логическое',
+                'CalcCol' => 'Строка'
             ]], 'Param');
-        dd($response->object());
+
+        return $response->object();
     }
 
     public function readStaff()
@@ -169,17 +151,7 @@ class Sbis
             ]
         ];
         $response = $this->send('СБИС.ПрочитатьСотрудника', $params, 'Параметр');
-        dd($response->object());
+        return $response->object();
     }
 
-//    public function getStates()
-//    {
-//        $response = $this->getThemes();
-//        $params = [
-//            "ID" => null,
-//            "UUID" => theme_uuid, "Parameters": None}, "id": 1
-//        ];
-//
-//        $response = $this->send('CRMTheme.ReadTheme', $params);
-//    }
 }

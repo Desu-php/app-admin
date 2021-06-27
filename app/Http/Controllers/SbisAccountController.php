@@ -22,10 +22,6 @@ class SbisAccountController extends Controller
     public function index()
     {
         //
-        $sbis = new Sbis();
-        $sbisAccpimt = SbisAccount::first();
-        $token = $sbis->getToken($sbisAccpimt->app_client_id, $sbisAccpimt->app_secret, $sbisAccpimt->secret_key);
-        dd($token);
         return view('sbis_accounts.index');
     }
 
@@ -49,16 +45,27 @@ class SbisAccountController extends Controller
 //                $btns .= ' <a href="' . route('whatsapp.channel.create', $data->id) . '"  class="btn btn-primary">Привязать канал</a>';
                 return $btns;
             })
-            ->addColumn('chat', function ($data) {
-                return '<a href="' . route('openChat') . '" target="_blank">Открыть</a>';
-            })
             ->editColumn('status', function ($data) {
                 if ($data->status == Whatsapp::ENABLED) {
                     return '<span class="badge badge-success">Включен</span>';
                 }
                 return '<span class="badge badge-danger">Отключен</span>';
             })
-            ->rawColumns(['action', 'chat', 'status'])
+            ->editColumn('theme', function ($data) {
+                if (empty($data->theme)){
+                    return '<a class="btn btn-primary" href="'.route('sbisAccounts.create_theme').'">Добавить тему</a>';
+                }else{
+                    return  $data->theme;
+                }
+            })
+            ->editColumn('create_lead', function ($data){
+                if ($data->create_lead == SbisAccount::CREATED_LEAD_AVAILABLE){
+                    return 'Да';
+                }else{
+                    return 'Нет';
+                }
+            })
+            ->rawColumns(['action', 'create_lead', 'status', 'theme'])
             ->escapeColumns(null)
             ->make(true);
     }
@@ -71,6 +78,8 @@ class SbisAccountController extends Controller
     public function create()
     {
         //
+
+        abort_if(Auth::user()->sbis, 403);
 
         $users = [];
         if (Auth::user()->hasRole(User::SUPER_ADMIN)) {
@@ -95,7 +104,9 @@ class SbisAccountController extends Controller
             'user_id' => 'nullable|exists:users,id',
             'app_client_id' => 'required|string|max:255',
             'app_secret' => 'required|string|max:255',
-            'secret_key' => 'required|file'
+            'secret_key' => 'required|file',
+            'status' => 'nullable|boolean',
+            'create_lead' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -190,7 +201,9 @@ class SbisAccountController extends Controller
             'user_id' => 'nullable|exists:users,id',
             'app_client_id' => 'required|string|max:255',
             'app_secret' => 'required|string|max:255',
-            'secret_key' => 'nullable|file'
+            'secret_key' => 'nullable|file',
+            'status' => 'nullable|boolean',
+            'create_lead' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -240,5 +253,35 @@ class SbisAccountController extends Controller
             $sbisAccount->where('user_id', Auth::id());
         }
         $sbisAccount->delete();
+    }
+
+    public function createTheme(Sbis  $sbis)
+    {
+        abort_if(is_null(Auth::user()->sbis), 404);
+        $themes = $sbis->getThemes()->result->d;
+
+        return view('sbis_accounts.create_theme', compact('themes'));
+    }
+
+    public function storeTheme(Request $request) {
+        $validation = Validator::make($request->all(), [
+            'theme' => 'required|string|max:255'
+        ]);
+
+        if ($validation->fails()){
+            return response()->json([
+                'success' => false,
+                'errors' => $validation->getMessageBag()
+            ], 400);
+        }
+
+        Auth::user()->sbis()->update([
+            'theme' => $request->theme
+        ]);
+
+        return  response()->json([
+            'success' => true,
+            'message' => 'Тема успешно добавлена'
+        ]);
     }
 }
