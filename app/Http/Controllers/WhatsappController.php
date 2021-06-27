@@ -176,6 +176,15 @@ class WhatsappController extends Controller
         if ($request->has('number') && $request->has('sbislidid')) {
             $phone = $this->phoneFormat($request->number);
 
+            Sbis::updateOrCreate([
+                'sbislidid' => $request->sbislidid,
+                'chatId' => Str::replaceFirst('+', '', $phone),
+            ],
+                [
+                    'sbis_account_id' => is_null(Auth::user()->sbis) ? null : Auth::user()->sbis->id,
+                ]
+            );
+
             if ($request->has('text')) {
 
                 if (is_null($account->channelId)) {
@@ -190,11 +199,6 @@ class WhatsappController extends Controller
                     return response()->json($message, $message['status']);
                 }
             }
-
-            Sbis::firstOrCreate([
-                'sbislidid' => $request->sbislidid,
-                'chatId' => $phone
-            ]);
 
             $scope = 'card';
             $filter = [
@@ -418,7 +422,7 @@ class WhatsappController extends Controller
                     $sbis_lead = $sbisService->createLead($sbisAccount->theme, $message['authorName'], $message['chatId']);
 
                     Sbis::create([
-                        'user_id' => $whatsapp->user_id,
+                        'sbis_account_id' => $sbisAccount->id,
                         'chatId' => $message['chatId'],
                         'sbislidid' => $sbis_lead->toArray()['result']['@Документ']
                     ]);
