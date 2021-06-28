@@ -176,14 +176,17 @@ class WhatsappController extends Controller
         if ($request->has('number') && $request->has('sbislidid')) {
             $phone = $this->phoneFormat($request->number);
 
-            Sbis::updateOrCreate([
-                'sbislidid' => $request->sbislidid,
-                'chatId' => Str::replaceFirst('+', '', $phone),
-            ],
-                [
-                    'sbis_account_id' => is_null(Auth::user()->sbis) ? null : Auth::user()->sbis->id,
-                ]
-            );
+            if ($request->sbislidid != 'undefined') {
+                Sbis::updateOrCreate([
+                    'sbislidid' => $request->sbislidid,
+                    'chatId' => $phone,
+                ],
+                    [
+                        'sbis_account_id' => is_null(Auth::user()->sbis) ? null : Auth::user()->sbis->id,
+                    ]
+                );
+            }
+
 
             if ($request->has('text')) {
 
@@ -436,7 +439,7 @@ class WhatsappController extends Controller
     private function phoneFormat($phone)
     {
         if (Str::substr($phone, 0, 1) == '8') {
-            return Str::replaceFirst('8', '+7', $phone);
+            return Str::replaceFirst('8', '7', $phone);
         }
         return $phone;
     }
