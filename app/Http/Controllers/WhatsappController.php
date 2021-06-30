@@ -395,7 +395,7 @@ class WhatsappController extends Controller
             return false;
         }
 
-        $this->createLead($whatsapp, $messages['messageId']);
+        $this->createLead($whatsapp, $messages);
 
         $messages['user_id'] = $whatsapp->user_id;
         $message_id = $messages['messageId'];
