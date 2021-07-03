@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Services\Sbis;
 use App\Services\Wazzup;
 use Illuminate\Http\Request;
@@ -32,10 +33,16 @@ class AppServiceProvider extends ServiceProvider
             if (!empty(Request()->api_key)) {
                 $api_key = Request()->api_key;
             } else {
+                if (Auth::user()->hasRole(User::EMPLOYEE)){
+                    abort_if(is_null(Auth::user()->user->whatsapp), 403);
 
-                abort_if(is_null(Auth::user()->whatsapp), 403);
+                    $api_key = Auth::user()->user->whatsapp->api_key;
+                }else{
+                    abort_if(is_null(Auth::user()->whatsapp), 403);
 
-                $api_key = Auth::user()->whatsapp->api_key;
+                    $api_key = Auth::user()->whatsapp->api_key;
+                }
+
             }
             return new Wazzup($api_key);
         });

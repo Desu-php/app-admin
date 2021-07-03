@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -14,6 +13,7 @@ class User extends Authenticatable
 
     const SUPER_ADMIN = 'SuperAdmin';
     const CLIENT = 'Client';
+    const EMPLOYEE = 'Employee';
     /**
      * The attributes that are mass assignable.
      *
@@ -23,6 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'user_id'
     ];
 
     /**
@@ -52,5 +53,20 @@ class User extends Authenticatable
     public function sbis()
     {
         return $this->hasOne(SbisAccount::class);
+    }
+
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

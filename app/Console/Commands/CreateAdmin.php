@@ -51,6 +51,11 @@ class CreateAdmin extends Command
             'guard_name' => 'web'
         ]);
 
+        Role::updateOrCreate([
+            'name' => 'Employee',
+            'guard_name' => 'web'
+        ]);
+
 
 
         $firstUser = User::updateOrCreate(

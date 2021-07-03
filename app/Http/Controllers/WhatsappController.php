@@ -163,8 +163,18 @@ class WhatsappController extends Controller
     public function openChat(Request $request, Wazzup $wazzup)
     {
         //
+        if (Auth::user()->hasRole(User::EMPLOYEE)){
+            $user_id = Auth::user()->user->id;
+            $username = Auth::user()->employee->user_wazzup;
+            $wazzup_id = Auth::user()->employee->wazzup_id;
+        }else{
+            $user_id = Auth::id();
+            $username = Auth::user()->whatsapp->username;
+            $wazzup_id = Auth::user()->whatsapp->wazzup_id;
+        }
+
         $account = Whatsapp::where('status', Whatsapp::ENABLED)
-            ->where('user_id', Auth::id())->first();
+            ->where('user_id', $user_id)->first();
 
         if (is_null($account)) {
             abort(404);
@@ -214,7 +224,7 @@ class WhatsappController extends Controller
             ];
         }
 
-        $data = $wazzup->openChat($account->wazzup_id, $account->username, $scope, $filter);
+        $data = $wazzup->openChat($wazzup_id, $username, $scope, $filter);
 
         if (!$data['success']) {
             return response()->json($data, $data['status']);

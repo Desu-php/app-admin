@@ -71,13 +71,18 @@ class Wazzup
         ]));
     }
 
+    public function deleteUser($id)
+    {
+        return $this->result($this->send('users/' . $id, 'delete'));
+    }
+
     private function result($response)
     {
         if ($response->status() >= 400) {
             Log::info('[ERROR - HOOK] ' . json_encode($response->object()));
             if ($response->status() == 404) {
                 return ['success' => false, 'errors' => 'Chat not found', 'status' => $response->status()];
-            }elseif ($response->status() == 400) {
+            } elseif ($response->status() == 400) {
                 return ['success' => false, 'errors' => $response->object()->errors, 'status' => $response->status()];
             }
 
@@ -86,4 +91,5 @@ class Wazzup
 
         return ['success' => true, 'data' => $response->object()];
     }
+
 }
