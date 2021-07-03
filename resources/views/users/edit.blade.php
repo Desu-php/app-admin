@@ -6,7 +6,8 @@
         <div class="col-md-6 col-sm-12 mb-4">
             <div class="stats-small stats-small--1 card card-small">
                 <div class="card-body">
-                    <form action="{{route('users.update', $user->id)}}" method="put" id="added_form">
+                    <form action="{{route('users.update', $user->id)}}" method="post" id="added_form">
+                        @method('put')
                         <div class="form-group">
                             <label for="email">Email</label>
                             <input type="email" class="form-control" id="email" name="email" placeholder="Email" value="{{$user->email}}" required>

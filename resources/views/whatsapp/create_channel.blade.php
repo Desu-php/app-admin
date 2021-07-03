@@ -6,8 +6,8 @@
         <div class="col-md-6 col-sm-12 mb-4">
             <div class="stats-small stats-small--1 card card-small">
                 <div class="card-body">
-                    <form action="{{route('whatsapp.channel.store', $data->id)}}" method="put" id="added_form">
-
+                    <form action="{{route('whatsapp.channel.store', $data->id)}}" method="post" id="added_form">
+                        @method('put')
                         <div class="form-group">
                             <label for="service" id="channelId">Канал</label>
                             <select class="form-control" id="channelId" name="channelId" required>

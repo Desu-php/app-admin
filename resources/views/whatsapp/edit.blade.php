@@ -6,7 +6,8 @@
         <div class="col-md-6 col-sm-12 mb-4">
             <div class="stats-small stats-small--1 card card-small">
                 <div class="card-body">
-                    <form action="{{route('whatsapp.update', $data->id)}}" method="put" id="added_form">
+                    <form action="{{route('whatsapp.update', $data->id)}}" method="post" id="added_form">
+                        @method('put')
                         @if(!empty($users))
                             <div class="form-group">
                                 <label for="service" id="users">Клиенты</label>
