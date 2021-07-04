@@ -25,7 +25,10 @@ class UserController extends Controller
     public function indexAjax(Request $request)
     {
 
-        $datas = User::query();
+        $datas = User::whereHas('roles', function ($query){
+            $query->where('name', User::SUPER_ADMIN)
+                ->orWhere('name', User::CLIENT);
+        });
         return DataTables::eloquent($datas)
             ->addColumn('accounts', function ($data) {
                 $btns = ' <a href="' . route('whatsapp.index','user='.$data->id). '"  class="btn btn-primary"><i class="fa fa-pencil-square-o"></i> Аккаунты</a>';

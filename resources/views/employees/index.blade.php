@@ -16,8 +16,10 @@
             <div class="card card-small mb-4">
                 <div class="card-header border-bottom d-flex justify-content-between">
                     <h6 class="m-0">Аккаунты сотрудников</h6>
+                    @role('Client')
                     <a href="{{route('employees.create')}}"
                        class="btn btn-success">Добавить</a>
+                    @endrole
                 </div>
                 <div class="card-body p-2 pb-3 text-center table-responsive">
                     <table class="table mb-0" id="dataTable">
@@ -29,7 +31,12 @@
                             <th scope="col" class="border-0">Фамилия</th>
                             <th scope="col" class="border-0">Должность</th>
                             <th scope="col" class="border-0">Пользователь Wazzup</th>
+                            @role('Client')
                             <th scope="col" class="border-0">Действие</th>
+                            @endrole
+                            @role('SuperAdmin')
+                            <th scope="col" class="border-0">Клиент</th>
+                            @endrole
                         </tr>
                         </thead>
 
@@ -48,7 +55,12 @@
             {data: "employee.last_name", name: 'employee.last_name'},
             {data: "employee.position", name: 'employee.position'},
             {data: "employee.user_wazzup", name: 'employee.user_wazzup'},
+            @role('Client')
             {data: 'action', name: 'action', orderable: false, searchable: false, width: 180}
+            @endrole
+            @role('SuperAdmin')
+            {data: 'user.email', name: 'user.email'}
+            @endrole
         ]
     </script>
 @endpush

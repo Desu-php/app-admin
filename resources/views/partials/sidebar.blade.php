@@ -38,7 +38,6 @@
                     <span>Аккаунты sbis</span>
                 </a>
             </li>
-            @role('Client')
             <li class="nav-item">
                 <a class="nav-link {{(request()->is('employees') || request()->is('employees/*'))?'active':''}}"
                    href="{{route('employees.index')}}">
@@ -46,7 +45,7 @@
                     <span>Сотрудники</span>
                 </a>
             </li>
-            @endrole
+
 {{--            <li class="sidebar-dropdown nav-item">--}}
 {{--                <a href="#" class="nav-link link-icon--}}
 {{--                    {{(request()->is('advertisings') || request()->is('advertisings/*'))--}}

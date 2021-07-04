@@ -29,14 +29,12 @@ Route::group(['prefix' => '/', 'middleware' => ['auth']], function () {
         Route::get('sbisAccounts/ajax/get', 'SbisAccountController@indexAjax');
         Route::get('sbisAccounts/create/theme', 'SbisAccountController@createTheme')->name('sbisAccounts.create_theme');
         Route::post('sbisAccounts/store_theme', 'SbisAccountController@storeTheme')->name('sbisAccounts.store_theme');
-    });
 
-    Route::get('/gotowhatsap', 'WhatsappController@openChat')->name('openChat');
-
-    Route::group(['prefix' => '/' , 'middleware' => ['role:Client']], function (){
         Route::resource('employees', 'EmployeeController');
         Route::get('employees/ajax/get', 'EmployeeController@indexAjax')->name('employees.indexAjax');
     });
+
+    Route::get('/gotowhatsap', 'WhatsappController@openChat')->name('openChat');
 });
 
 Route::post('/whatsapp/webhook/{id}', 'WhatsappController@webhook')->name('webhook');

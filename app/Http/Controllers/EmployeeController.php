@@ -32,11 +32,16 @@ class EmployeeController extends Controller
 
     public function indexAjax()
     {
-        $datas = User::with('employee')
-        ->where('user_id', Auth::id())
-        ->role('Employee');
+        $userQuery = User::with('employee')
+        ->role(User::EMPLOYEE);
 
-        return DataTables::eloquent($datas)
+        if (Auth::user()->hasRole(User::CLIENT)){
+            $userQuery->where('user_id', Auth::id());
+        }else{
+            $userQuery->with('user');
+        }
+
+        return DataTables::eloquent($userQuery)
             ->addColumn('action', function ($data) {
                 $btns = '<a href="javascript:void(0)"  onclick="Delete(' . $data->id . ')" class="btn btn-danger">Удалить</a>';
                 $btns .= ' <a href="' . url('employees/' . $data->id . '/edit') . '"  class="btn btn-warning">Изменить</a>';

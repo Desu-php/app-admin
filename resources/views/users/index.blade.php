@@ -7,7 +7,7 @@
             <div class="card card-small mb-4">
                 <div class="card-header border-bottom d-flex justify-content-between">
                     <h6 class="m-0">Пользователи админки</h6>
-                    <a href="{{route('users.create')}}" class="btn btn-success" >Добавить</a>
+                    <a href="{{route('users.create')}}" class="btn btn-success">Добавить</a>
                 </div>
                 <div class="card-body p-2 pb-3 text-center table-responsive">
                     <table class="table mb-0" id="dataTable">
@@ -30,13 +30,13 @@
 @endsection
 @push('scripts')
     <script>
-        var columns =  [
-            { data: "id", name: 'id'},
-            { data: "email", name: 'email'},
-            { data: "name", name: 'name'},
-            { data: "created_at", name: 'created_at'},
-            { data: "accounts", name: 'accounts', orderable: false, searchable: false},
-            { data: 'action', name: 'action', orderable: false, searchable: false, width:180}
+        var columns = [
+            {data: "id", name: 'id'},
+            {data: "email", name: 'email'},
+            {data: "name", name: 'name'},
+            {data: "created_at", name: 'created_at'},
+            {data: "accounts", name: 'accounts', orderable: false, searchable: false},
+            {data: 'action', name: 'action', orderable: false, searchable: false, width: 180}
         ]
     </script>
 @endpush

@@ -13,6 +13,8 @@ class RedirectController extends Controller
     {
         if (Auth::user()->hasRole(User::SUPER_ADMIN)) {
             return redirect()->route('users.index');
+        } elseif (Auth::user()->hasRole(User::EMPLOYEE)) {
+            die('Вы успешно вошли, можете пользоваться кнопкой WhatsApp из СБИС');
         } else {
             return redirect()->route('whatsapp.index');
         }

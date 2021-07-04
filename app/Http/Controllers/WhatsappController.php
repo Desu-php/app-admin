@@ -50,8 +50,7 @@ class WhatsappController extends Controller
         return DataTables::eloquent($datas)
             ->addColumn('action', function ($data) {
                 $btns = '<a href="javascript:void(0)"  onclick="Delete(' . $data->id . ')" class="btn btn-danger">Удалить</a>';
-                $btns .= ' <a href="' . url('sbisAccounts/' . $data->id . '/edit') . '"  class="btn btn-warning">Изменить</a>';
-//                $btns .= ' <a href="' . route('whatsapp.channel.create', $data->id) . '"  class="btn btn-primary">Привязать канал</a>';
+                $btns .= ' <a href="' . url('whatsapp/' . $data->id . '/edit') . '"  class="btn btn-warning">Изменить</a>';
                 return $btns;
             })
             ->editColumn('status', function ($data) {
@@ -163,11 +162,11 @@ class WhatsappController extends Controller
     public function openChat(Request $request, Wazzup $wazzup)
     {
         //
-        if (Auth::user()->hasRole(User::EMPLOYEE)){
+        if (Auth::user()->hasRole(User::EMPLOYEE)) {
             $user_id = Auth::user()->user->id;
             $username = Auth::user()->employee->user_wazzup;
             $wazzup_id = Auth::user()->employee->wazzup_id;
-        }else{
+        } else {
             $user_id = Auth::id();
             $username = Auth::user()->whatsapp->username;
             $wazzup_id = Auth::user()->whatsapp->wazzup_id;
@@ -187,12 +186,24 @@ class WhatsappController extends Controller
             $phone = $this->phoneFormat($request->number);
 
             if ($request->sbislidid != 'undefined') {
+
+                if (Auth::user()->hasRole(User::EMPLOYEE)) {
+
+                    abort_if(is_null(Auth::user()->user->sbis), 403, 'Добавьте аккаунт sbis');
+
+                    $sbis_account_id = Auth::user()->user->sbis->id;
+                }else{
+                    abort_if(is_null(Auth::user()->sbis), 403, 'Добавьте аккаунт sbis');
+
+                    $sbis_account_id = Auth::user()->sbis->id;
+                }
+
                 Sbis::updateOrCreate([
                     'sbislidid' => $request->sbislidid,
                     'chatId' => $phone,
                 ],
                     [
-                        'sbis_account_id' => is_null(Auth::user()->sbis) ? null : Auth::user()->sbis->id,
+                        'sbis_account_id' => $sbis_account_id,
                     ]
                 );
             }
