@@ -444,11 +444,11 @@ class WhatsappController extends Controller
 
             if (!$existsSbis) {
                 $sbisService = new \App\Services\Sbis($sbis->app_client_id, $sbis->app_secret, $sbis->secret_key);
-                $sbisAccount = SbisAccount::where('user_id', $whatsapp->user_id)->first();
-                $sbis_lead = $sbisService->createLead($sbisAccount->theme, $message['authorName'], $message['chatId']);
+                $sbis_lead = $sbisService->createLead($whatsapp->user->sbis->theme, $message['authorName'], $message['chatId']);
+                Log::info('lead '.json_encode($sbis_lead->toArray()));
 
                 Sbis::create([
-                    'sbis_account_id' => $sbisAccount->id,
+                    'sbis_account_id' => $whatsapp->user->sbis->id,
                     'chatId' => $message['chatId'],
                     'sbislidid' => $sbis_lead->toArray()['result']['@Документ']
                 ]);
