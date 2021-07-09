@@ -192,7 +192,7 @@ class WhatsappController extends Controller
                     abort_if(is_null(Auth::user()->user->sbis), 403, 'Добавьте аккаунт sbis');
 
                     $sbis_account_id = Auth::user()->user->sbis->id;
-                }else{
+                } else {
                     abort_if(is_null(Auth::user()->sbis), 403, 'Добавьте аккаунт sbis');
 
                     $sbis_account_id = Auth::user()->sbis->id;
@@ -416,7 +416,9 @@ class WhatsappController extends Controller
             return false;
         }
 
-        $this->createLead($whatsapp, $messages);
+        if (!is_null($whatsapp->user->sbis)) {
+            $this->createLead($whatsapp, $messages);
+        }
 
         $messages['user_id'] = $whatsapp->user_id;
         $message_id = $messages['messageId'];
@@ -431,27 +433,23 @@ class WhatsappController extends Controller
 
     private function createLead($whatsapp, array $message)
     {
-        if (!is_null($whatsapp->user->sbis)) {
-            $sbis = $whatsapp->user->sbis;
+        $sbis = $whatsapp->user->sbis;
 
-            if ($sbis->status == SbisAccount::ENABLED &&
-                $sbis->create_lead == SbisAccount::CREATED_LEAD_AVAILABLE) {
+        if ($sbis->status == SbisAccount::ENABLED && $sbis->create_lead == SbisAccount::CREATED_LEAD_AVAILABLE) {
 
-                $existsSbis = Sbis::where('user_id', $whatsapp->user_id)
-                    ->where('chatId', $message['chatId'])->exists();
+            $existsSbis = Sbis::where('user_id', $whatsapp->user_id)
+                ->where('chatId', $message['chatId'])->exists();
+            Log::info('exits - '.$existsSbis);
+            if (!$existsSbis) {
+                $sbisService = new \App\Services\Sbis($sbis->app_client_id, $sbis->app_secret, $sbis->secret_key);
+                $sbisAccount = SbisAccount::where('user_id', $whatsapp->user_id)->first();
+                $sbis_lead = $sbisService->createLead($sbisAccount->theme, $message['authorName'], $message['chatId']);
 
-                if (!$existsSbis) {
-                    $sbisService = new \App\Services\Sbis($sbis->app_client_id, $sbis->app_secret, $sbis->secret_key);
-                    $sbisAccount = SbisAccount::where('user_id', $whatsapp->user_id);
-                    $sbis_lead = $sbisService->createLead($sbisAccount->theme, $message['authorName'], $message['chatId']);
-
-                    Sbis::create([
-                        'sbis_account_id' => $sbisAccount->id,
-                        'chatId' => $message['chatId'],
-                        'sbislidid' => $sbis_lead->toArray()['result']['@Документ']
-                    ]);
-                }
-
+                Sbis::create([
+                    'sbis_account_id' => $sbisAccount->id,
+                    'chatId' => $message['chatId'],
+                    'sbislidid' => $sbis_lead->toArray()['result']['@Документ']
+                ]);
             }
 
         }
