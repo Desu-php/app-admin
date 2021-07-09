@@ -230,3 +230,25 @@ function parseUrlParams(url) {
     })
     return result
 }
+
+$('#setWebHook').click(function (){
+    const btn = $(this)
+    btn.attr('disabled', true)
+    $.ajax({
+        url: $(this).data('url'),
+        type: "POST",
+        data: ({"_token": $('meta[name="csrf-token"]').attr('content')}),
+        success: function (data){
+            if (data.message){
+                console.log('show')
+                showAlert('success', 'Успешно!', data.message)
+            }
+        },
+        error: function (data) {
+            showAlert('danger', 'Ошибка!', 'Что-то пошло не так, повторите позже')
+        },
+        complete: function (data) {
+            btn.attr('disabled', false)
+        }
+    })
+})

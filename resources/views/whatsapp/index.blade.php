@@ -9,7 +9,7 @@
                 {{$errors->first()}}
         </div>
     @endif
-    <div class="main-content-container container-fluid px-4">
+    <div class="main-content-container container-fluid px-4" id="after_alert">
         <!-- Page Header -->
         @include('partials.header', ['title' => 'Аккаунты wazzup'])
         <div class="col">
@@ -17,18 +17,21 @@
                 <div class="card-header border-bottom d-flex justify-content-between">
                     <h6 class="m-0">Аккаунты клиентов</h6>
                     @role('Client')
-
-                    <a href="{{route('whatsapp.create')}}"
-                       @if(!empty($whatsapp))
+                    <div>
+                        <button id="setWebHook" data-url="{{route('setWebHook')}}" class="btn btn-primary">
+                            Привязать вебхук</button>
+                        <a href="{{route('whatsapp.create')}}"
+                           @if(!empty($whatsapp))
                            style="display:none"
-                       id="btn_add"
-                       @endif
-                       class="btn btn-success">Добавить</a>
-                    @if(!empty($whatsapp))
-                    <a href="{{route('whatsapp.channel.create', $whatsapp->id)}}"
-                       id="btn_channel"
-                       class="btn btn-primary">Привязать канал</a>
-                    @endif
+                           id="btn_add"
+                           @endif
+                           class="btn btn-success">Добавить</a>
+                        @if(!empty($whatsapp))
+                            <a href="{{route('whatsapp.channel.create', $whatsapp->id)}}"
+                               id="btn_channel"
+                               class="btn btn-primary">Привязать канал</a>
+                        @endif
+                    </div>
                     @endrole
                 </div>
                 <div class="card-body p-2 pb-3 text-center table-responsive">

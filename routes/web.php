@@ -24,6 +24,7 @@ Route::group(['prefix' => '/', 'middleware' => ['auth']], function () {
         Route::get('/whatsapp/channel/create/{whatsapp}', 'WhatsappController@channelCreate')->name('whatsapp.channel.create');
         Route::get('/whatsapp/ajax/get', 'WhatsappController@indexAjax')->name('whatsapp.indexAjax');
         Route::put('/whatsapp/channel/{whatsapp}', 'WhatsappController@channelStore')->name('whatsapp.channel.store');
+        Route::post('/whatsapp/setWebHook', 'WhatsappController@setWebHook')->name('setWebHook');
 
         Route::resource('sbisAccounts', 'SbisAccountController');
         Route::get('sbisAccounts/ajax/get', 'SbisAccountController@indexAjax');

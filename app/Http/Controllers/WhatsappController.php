@@ -462,4 +462,12 @@ class WhatsappController extends Controller
         }
         return $phone;
     }
+
+    public function setWebHook(Wazzup $wazzup)
+    {
+       $wazzup->setWebhook(Auth::user()->whatsapp->id);
+       return response()->json([
+           'message' => 'Вебхук переподключен'
+       ]);
+    }
 }
