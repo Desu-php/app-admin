@@ -433,13 +433,14 @@ class WhatsappController extends Controller
 
     private function createLead($whatsapp, array $message)
     {
+        Log::info('messages', json_encode($message));
         $sbis = $whatsapp->user->sbis;
 
         if ($sbis->status == SbisAccount::ENABLED && $sbis->create_lead == SbisAccount::CREATED_LEAD_AVAILABLE) {
 
             $existsSbis = Sbis::where('user_id', $whatsapp->user_id)
                 ->where('chatId', $message['chatId'])->exists();
-            Log::info('exits - '.$existsSbis);
+
             if (!$existsSbis) {
                 $sbisService = new \App\Services\Sbis($sbis->app_client_id, $sbis->app_secret, $sbis->secret_key);
                 $sbisAccount = SbisAccount::where('user_id', $whatsapp->user_id)->first();
