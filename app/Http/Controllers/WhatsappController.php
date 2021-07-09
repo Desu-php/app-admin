@@ -433,28 +433,32 @@ class WhatsappController extends Controller
 
     private function createLead($whatsapp, array $message)
     {
-        Log::info('messages'.' '.json_encode($message));
+        try {
+            Log::info('messages'.' '.json_encode($message));
+            $sbis = $whatsapp->user->sbis;
 
-        $sbis = $whatsapp->user->sbis;
+            if ($sbis->status == SbisAccount::ENABLED && $sbis->create_lead == SbisAccount::CREATED_LEAD_AVAILABLE) {
 
-        if ($sbis->status == SbisAccount::ENABLED && $sbis->create_lead == SbisAccount::CREATED_LEAD_AVAILABLE) {
+                $existsSbis = Sbis::where('sbis_account_id', $whatsapp->user->sbis->id)
+                    ->where('chatId', $message['chatId'])->exists();
 
-            $existsSbis = Sbis::where('sbis_account_id', $whatsapp->user->sbis->id)
-                ->where('chatId', $message['chatId'])->exists();
+                if (!$existsSbis) {
+                    $sbisService = new \App\Services\Sbis($sbis->app_client_id, $sbis->app_secret, $sbis->secret_key);
+                    $sbis_lead = $sbisService->createLead($whatsapp->user->sbis->theme, $message['authorName'], $message['chatId']);
+                    Log::info('lead '.json_encode($sbis_lead->toArray()));
 
-            if (!$existsSbis) {
-                $sbisService = new \App\Services\Sbis($sbis->app_client_id, $sbis->app_secret, $sbis->secret_key);
-                $sbis_lead = $sbisService->createLead($whatsapp->user->sbis->theme, $message['authorName'], $message['chatId']);
-                Log::info('lead '.json_encode($sbis_lead->toArray()));
+                    Sbis::create([
+                        'sbis_account_id' => $whatsapp->user->sbis->id,
+                        'chatId' => $message['chatId'],
+                        'sbislidid' => $sbis_lead->toArray()['result']['@Документ']
+                    ]);
+                }
 
-                Sbis::create([
-                    'sbis_account_id' => $whatsapp->user->sbis->id,
-                    'chatId' => $message['chatId'],
-                    'sbislidid' => $sbis_lead->toArray()['result']['@Документ']
-                ]);
             }
-
+        }catch (\Exception $exception){
+            Log::error($exception->getMessage());
         }
+
     }
 
     private function phoneFormat($phone)
