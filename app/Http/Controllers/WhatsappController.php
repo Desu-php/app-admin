@@ -450,7 +450,7 @@ class WhatsappController extends Controller
                     Sbis::create([
                         'sbis_account_id' => $whatsapp->user->sbis->id,
                         'chatId' => $message['chatId'],
-                        'sbislidid' => $sbis_lead->toArray()['result']['@Документ']
+                        'sbislidid' => $sbis_lead->toArray()['result']['d']['@Документ']
                     ]);
                 }
 
